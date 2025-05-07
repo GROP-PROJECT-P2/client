@@ -38,21 +38,51 @@ export function GlobalProvider(props) {
       },
     });
     const response = result.data;
+
+    // Add this debugging log to see the exact structure
+    console.log("Messages from server:", JSON.stringify(response, null, 2));
+
     setMessages(response);
   }
 
-  // create mssage
+  // create message
   async function createMessage(id, message) {
-    await https({
-      method: "POST",
-      url: `/groups/${id}`,
-      data: {
-        message: message,
-      },
-      headers: {
-        Authorization: `Bearer ${localStorage.access_token}`,
-      },
-    });
+    try {
+      if (!id) {
+        throw new Error("Group ID is required");
+      }
+
+      if (!message || message.trim() === "") {
+        throw new Error("Message cannot be empty");
+      }
+
+      console.log("Sending message to group:", id, "Message:", message);
+
+      // Update to match exactly what the server controller expects
+      const result = await https({
+        method: "POST",
+        url: `/groups/${id}`,
+        data: {
+          content: message, // Server expects 'content' based on your controller code
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.access_token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log("Message sent successfully:", result.data);
+
+      // DON'T fetch messages here - wait for the socket event instead
+      // This prevents double-fetching
+
+      return result;
+    } catch (error) {
+      console.error("Error in createMessage:", error);
+      console.error("Error response:", error.response?.data);
+      console.error("Status code:", error.response?.status);
+      throw error;
+    }
   }
 
   return (
