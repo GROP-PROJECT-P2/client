@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import LoginPage from "./pages/Login.page";
+import RegisterPage from "./pages/Register.page";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
 
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
       </Routes>
     </BrowserRouter>
   );
