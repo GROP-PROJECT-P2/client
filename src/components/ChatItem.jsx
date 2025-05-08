@@ -1,5 +1,12 @@
-import './ChatItem.css';
-export default function ChatItem({ isMe, username, message, createdAt }) {
+import "./ChatItem.css";
+
+export default function ChatItem({
+  isMe,
+  username,
+  message,
+  isAi = false,
+  createdAt,
+}) {
   const formatDate = (formatDate) => {
     const date = new Date(formatDate);
     const now = new Date();
@@ -17,55 +24,93 @@ export default function ChatItem({ isMe, username, message, createdAt }) {
     })();
 
     if (isToday) {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
     } else if (isYesterday) {
       return "Yesterday";
     } else if (isThisWeek) {
-      return date.toLocaleDateString([], { weekday: 'short' });
+      return date.toLocaleDateString([], { weekday: "short" });
     } else {
       return date.toLocaleDateString();
     }
-  }
+  };
+
+  // For AI messages, remove the @AiChatVerse prefix before displaying
+  const displayMessage =
+    isAi && message?.startsWith("@AiChatVerse")
+      ? message.substring("@AiChatVerse".length).trim()
+      : message;
 
   return (
-    <>
-      <div class="chat-message">
-        <div class={`flex items-end ${isMe ? "justify-end" : ""}`}>
+    <div className="chat-message my-2">
+      <div className={`flex items-end ${isMe ? "justify-end" : ""}`}>
+        {/* Avatar for sender (not me) */}
+        {!isMe && (
           <div
-            class={`flex flex-col space-y-2 text-sm max-w-xs sm:max-w-xl mx-2 order-2 ${isMe ? "items-end order-1" : "items-start order-2"
-              }`}
+            className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-white font-medium text-sm shadow-sm mr-2 ${
+              isAi
+                ? "bg-gradient-to-br from-blue-500 to-purple-600"
+                : "bg-gradient-to-br from-gray-500 to-gray-600"
+            }`}
           >
-
-            <div className={`${isMe
-              ? "chat-message-container-me"
-              : "chat-message-container"
-              }`}>
-
-              <span
-                class={`px-4 py-2 rounded-lg inline-block ${isMe
-                  ? "rounded-br-none bg-blue-600 text-white"
-                  : "rounded-bl-none bg-gray-300  text-gray-600"
-                  }`}
-              ><p className={`${isMe
-                ? "message-title-me"
-                : "message-title"
-                }`}>{username}</p>
-                {message}
-              </span>
-              <small className="chat-date">{formatDate(createdAt)}</small>
-            </div>
-
+            {username[0]}
           </div>
+        )}
+
+        <div className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
           <div
-            class={`relative inline-flex items-center justify-center w-6 h-6 sm:w-12 sm:h-12 overflow-hidden rounded-full self-center order-1 ${isMe
-              ? "text-white bg-blue-600 order-2"
-              : "text-white bg-gray-600 order-1"
-              } `}
+            className={`max-w-xs sm:max-w-md overflow-hidden ${
+              isMe ? "chat-message-container-me" : "chat-message-container"
+            }`}
           >
-            <span className="font-medium">{username[0]}</span>
+            <div
+              className={`px-4 py-3 rounded-2xl shadow-sm ${
+                isMe
+                  ? "bg-gradient-to-r from-[#4F46E5] to-[#6366F1] text-white"
+                  : isAi
+                  ? "bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] text-white border border-blue-300"
+                  : "bg-[#2C3036] text-[#E9ECEF] border border-[#30363D]"
+              }`}
+            >
+              <p
+                className={`text-xs font-semibold mb-1 ${
+                  isMe
+                    ? "text-[#E9ECEF]"
+                    : isAi
+                    ? "text-blue-200 flex items-center"
+                    : "text-[#A5B4FC]"
+                }`}
+              >
+                {isAi ? (
+                  <>
+                    AiChatVerse
+                    <span className="ml-2 px-1.5 py-0.5 rounded-full text-[10px] bg-blue-700 text-blue-100">
+                      AI
+                    </span>
+                  </>
+                ) : (
+                  username
+                )}
+              </p>
+              <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                {displayMessage}
+              </p>
+            </div>
+            <p className="text-xs text-[#9CA3AF] mt-1 px-1">
+              {formatDate(createdAt)}
+            </p>
           </div>
         </div>
+
+        {/* Avatar for me */}
+        {isMe && (
+          <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gradient-to-br from-[#4F46E5] to-[#6366F1] flex items-center justify-center text-white font-medium text-sm shadow-sm ml-2">
+            {username[0]}
+          </div>
+        )}
       </div>
-    </>
+    </div>
   );
 }
